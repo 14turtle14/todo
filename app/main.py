@@ -1,10 +1,8 @@
 import uvicorn
 import logging
 
-from fastapi import FastAPI
 from app.models import models
 from app.routers import targets, tasks, users
-from app.services import users
 from database import engine
 from fastapi import FastAPI
 
@@ -20,7 +18,7 @@ app.include_router(users.router)
 app.include_router(targets.router)
 app.include_router(tasks.router)
 
-@app.on_event("startup")
+@app.add_event_handler("startup")
 async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(models.Base.metadata.create_all)

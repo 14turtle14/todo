@@ -1,6 +1,5 @@
 from sqlalchemy.orm import AsyncSession
 from sqlalchemy.future import select
-
 from app.models.models import User
 from app.models.schemas.user_schema import UserCreate, UserUpdate
 
@@ -32,3 +31,15 @@ async def update_user(db: AsyncSession, user: UserUpdate, user_id: int):
     await db.commit()
     await db.refresh(db_user)
     return db_user
+
+async def get_user_by_email(db: AsyncSession, email: str):
+    return await db.execute(select(User).where(User.email == email)).scalars().first()
+
+async def get_user_by_username(db: AsyncSession, username: str):
+    return await db.execute(select(User).where(User.username == username)).scalars().first()
+
+async def get_user_by_login(db: AsyncSession, login: str):
+     user = await get_user_by_login(db, login)
+     if user:
+          return await get_user_by_email(db, login)
+     return user

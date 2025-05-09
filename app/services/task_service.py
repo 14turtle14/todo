@@ -1,34 +1,33 @@
-from sqlalchemy.orm import Session
-
+from sqlalchemy.orm import AsyncSession
+from app.models.models import Task
 from app.models.schemas.task_schema import TaskCreate, TaskUpdate
-from app.models.schemas.user_schema import UserCreate, UserUpdate
-from . import models
+from sqlalchemy.future import select
 
-def create_task(db: Session, task: TaskCreate):
-    db_task = models.Task(**task)
+async def create_task(db: AsyncSession, task: TaskCreate, target_id: int, user_id: int):
+    db_task = Task(**task, target_id=target_id)
     db.add(db_task)
-    db.commit()
-    db.refresh(db_task)
+    await db.commit()
+    await db.refresh(db_task)
     return db_task
 
-def find_task(db: Session, task_id: int):
-    return db.query(models.Task).filter(models.Task.id == task_id).first()
+async def find_task(db: AsyncSession, task_id: int, target_id: int, user_id: int):
+    return await db.execute(select(Task).where(Task.id == task_id and Task.target_id == target_id)).scalars().first()
 
-def delete_task(db: Session, task_id: int):
-    db_task = find_task(db, task_id)
+async def delete_task(db: AsyncSession, task_id: int, target_id: int, user_id: int):
+    db_task = await find_task(db, task_id, target_id, user_id)
     db.delete(db_task)
-    db.commit()
-    db.refresh()
+    await db.commit()
+    await db.refresh()
     return db_task
 
-def get_tasks(db: Session):
-    return db.query(models.Task).all()
+async def get_tasks(db: AsyncSession, target_id: int, user_id: int):
+    return await db.execute(select(Task).where(Task.target_id == target_id)).scalars().all()
 
-def update_task(db: Session, task: TaskUpdate, task_id: int):
-    db_task = find_task(db, task_id)
-    for field, value in task.model_dump().items():
+async def update_task(db: AsyncSession, task: TaskUpdate, task_id: int, target_id: int, user_id: int):
+    db_task = await find_task(db, task_id, target_id, user_id)
+    for field, value in task.model_dump(exclude_unset=True).items():
             setattr(db_task, field, value)
         
-    db.commit()
-    db.refresh(db_task)
+    await db.commit()
+    await db.refresh(db_task)
     return db_task
