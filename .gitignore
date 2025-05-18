@@ -14,3 +14,8 @@ __pycache__/
 # Игнорируем логи и временные файлы
 *.log
 *.tmp
+
+/frontend/node_modules
+/todo.egg-info
+.pytest_cache
+.coverage
