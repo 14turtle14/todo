@@ -14,7 +14,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
@@ -40,9 +40,22 @@ async def decode_token(token: str = Depends(oauth2_scheme)):
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     payload = await decode_token(token)
-    user_id = payload.get("sub")
+    user_id  = payload.get("sub")
     if user_id:
-        user = await find_user(db, user_id)
+        user = await find_user(db, int(user_id))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user.id
+
+async def change_user_password(password_old: str, password_new: str, user_id: int, db: AsyncSession = Depends(get_db)):
+    db_user = await find_user(db, user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not verify_password(password_old, db_user.password):
+        raise HTTPException(status_code=400, detail="Password is invalid")
+    if verify_password(password_new, db_user.password):
+        raise HTTPException(status_code=400, detail="Old and new passwords are the same")
+    db_user.password = get_password_hash(password_new)
+    await db.commit()
+    await db.refresh(db_user)
+    return db_user

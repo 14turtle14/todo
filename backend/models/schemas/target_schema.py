@@ -4,11 +4,11 @@ from typing import List, Optional
 from backend.models.schemas.task_schema import TaskResponse
 
 class TargetBase(BaseModel):
-    name: str
+    title: str
     deadline: int
     is_done: bool
 
-    @field_validator("name")
+    @field_validator("title")
     @classmethod
     def validate_name(cls, value: str) -> str:
         if not value.strip():
@@ -27,7 +27,7 @@ class TargetCreate(TargetBase):
 
 class TargetResponse(TargetBase):
     id: int
-    owner_id: int
+    user_id: int
     tasks: List["TaskResponse"] = []
 
     model_config = ConfigDict(
@@ -40,6 +40,6 @@ class TargetResponse(TargetBase):
     )
 
 class TargetUpdate(BaseModel):
-    name: Optional[str]
-    deadline: Optional[str]
+    title: Optional[str]
+    deadline: Optional[int]
     is_done: Optional[bool]

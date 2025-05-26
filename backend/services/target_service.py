@@ -16,9 +16,10 @@ async def find_target(db: AsyncSession, target_id: int, user_id: int):
 
 async def delete_target(db: AsyncSession, target_id: int, user_id: int):
     db_target = await find_target(db, target_id, user_id)
+    if not db_target:
+        return None
     await db.delete(db_target)
     await db.commit()
-    await db.refresh(db_target)
     return db_target
 
 async def get_targets(db: AsyncSession, user_id: int):
@@ -27,6 +28,8 @@ async def get_targets(db: AsyncSession, user_id: int):
 
 async def update_target(db: AsyncSession, target: TargetUpdate, target_id: int, user_id: int):
     db_target = find_target(db, target_id, user_id)
+    if not db_target:
+        return None
     for field, value in target.model_dump(exclude_unset=True).items():
         setattr(db_target, field, value)
         

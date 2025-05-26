@@ -20,8 +20,8 @@ class Target(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column()
-    deadline: Mapped[str] = mapped_column()
-    is_done: Mapped[str] = mapped_column()
+    deadline: Mapped[int] = mapped_column()
+    is_done: Mapped[bool] = mapped_column()
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))  
 
     user: Mapped["User"] = relationship(back_populates="targets", lazy="selectin")
@@ -32,7 +32,8 @@ class Task(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column()
-    is_done: Mapped[str] = mapped_column()
+    deadline: Mapped[int] = mapped_column()
+    is_done: Mapped[bool] = mapped_column()
     target_id: Mapped[int] = mapped_column(ForeignKey("targets.id"))  
 
     target: Mapped["Target"] = relationship(back_populates="tasks", lazy="selectin")

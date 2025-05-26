@@ -33,9 +33,6 @@ class UserLogin(BaseModel):
 class UserCreate(UserBase):
     pass
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
 
 class UserResponse(UserBase):
     id: int
@@ -82,20 +79,6 @@ class UserResponse(UserBase):
     }
     )
         
-class UserUpdate(BaseModel):
-    username: Optional[str]
-    email: Optional[EmailStr]
-    password: Optional[str]
-
-    @model_validator(mode="after")
-    def check_at_least_one_field(self) -> "UserUpdate":
-        if all(field is None for field in [self.username, self.email, self.password]):
-            raise ValueError("At least one filed must be updated")
-        return self
-    
-    @field_validator("password")
-    @classmethod
-    def validate_password(cls, value: Optional[str]) -> Optional[str]:
-        if value is not None and len(value) < 8:
-            raise ValueError("Password must be longer than 8 characters")
-        return value
+class Token(BaseModel):
+    access_token: str
+    token_type: str

@@ -2,11 +2,12 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, field_validator
 
 class TaskBase(BaseModel):
-    name: str
+    title: str
     deadline: int
     is_done: bool
+    target_id: int
 
-    @field_validator("name")
+    @field_validator("title")
     @classmethod
     def validate_name(cls, value: str) -> str:
         if not value.strip():
@@ -25,8 +26,6 @@ class TaskCreate(TaskBase):
 
 class TaskResponse(TaskBase):
     id: int
-    target_id: int
-    user_id: int
 
     model_config = ConfigDict(
         json_schema_extra = {
@@ -39,6 +38,6 @@ class TaskResponse(TaskBase):
     
 
 class TaskUpdate(BaseModel):
-    name: Optional[str]
-    deadline: Optional[str]
+    title: Optional[str]
+    deadline: Optional[int]
     is_done: Optional[bool]

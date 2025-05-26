@@ -1,10 +1,11 @@
 import uvicorn
 import logging
 
-from backend.routers import targets, tasks, users
+from backend.routers import auth, targets, tasks, users
 from backend.database.database import startup
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,6 +26,7 @@ app.add_middleware(
 app.include_router(users.router)
 app.include_router(targets.router)
 app.include_router(tasks.router)
+app.include_router(auth.router)
 app.add_event_handler("startup", startup)
 
 

@@ -8,13 +8,13 @@ from backend.services import task_service
 from backend.services.auth_service import get_current_user
 
 router = APIRouter(
-    prefix="/tasks",  
+    prefix="/targets/{target_id}/tasks",  
     tags=["Tasks"], 
 )
 
 @router.post("/", response_model=TaskResponse)
-async def create_task(task: TaskCreate, target_id: int, db: AsyncSession = Depends(get_db), user_id: int = Depends(get_current_user)):
-    return await task_service.create_task(db, task, target_id, user_id)
+async def create_task(task: TaskCreate, db: AsyncSession = Depends(get_db), user_id: int = Depends(get_current_user)):
+    return await task_service.create_task(db, task, user_id)
 
 @router.get("/{task_id}", response_model=TaskResponse)
 async def read_task(task_id: int, target_id: int, db: AsyncSession = Depends(get_db), user_id: int = Depends(get_current_user)):
