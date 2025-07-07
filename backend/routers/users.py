@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Depends
 
 from backend.database.database import get_db
-from backend.models.schemas.user_schema import UserResponse, UserUpdate
+from backend.models.schemas.user_schema import UserResponse
 from backend.services import user_service
 from sqlalchemy.ext.asyncio import AsyncSession
 

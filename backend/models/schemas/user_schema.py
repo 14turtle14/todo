@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, ValidationInfo, field_validator, model_validator
-from typing import List, Optional, Union
+from pydantic import BaseModel, ConfigDict, EmailStr, ValidationInfo, field_validator
+from typing import List, Union
 
 from backend.models.schemas.target_schema import TargetResponse
 

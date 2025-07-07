@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from backend.models.models import User
 from backend.models.schemas.user_schema import UserCreate
+import logging
+logger = logging.getLogger(__name__)
 
 async def create_user(db: AsyncSession, user: UserCreate):
     db_user = User(**user.model_dump())
@@ -23,6 +25,7 @@ async def delete_user(db: AsyncSession, user_id: int):
 
 async def get_users(db: AsyncSession):
     db_users = await db.execute(select(User))
+    logger.info("cruto!")
     return db_users.scalars().all()
 
 async def get_user_by_email(db: AsyncSession, email: str):

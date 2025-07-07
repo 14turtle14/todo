@@ -1,26 +1,69 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { setupAuthGuard } from './authGuard'
-
-const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import('@/views/HomePage.vue'),
-    meta: { requiresAuth: true }  
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/auth/AuthForm.vue'),
-    meta: { guestOnly: true }
-  }
-]
+import { createRouter, createWebHistory} from 'vue-router';
+import {useAuthStore} from '@/store/auth.js'
+import Login from '@/views/Login.vue';
+import Register from '@/views/Register.vue';
+import Home from '@/views/Home.vue';
+import Profile from '@/views/Profile.vue';
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes: [
+  {
+    path: '/',
+    redirect: (to) => {
+      const authStore = useAuthStore;
+      return authStore.isAuthenticated ? '/home' : '/token';
+  }
+  },
+  {
+    path: '/token',
+    name: 'Login',
+    component: Login,
+    meta: { guestOnly: true }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register,
+    meta: { guestOnly: true }
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: Home,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { requiresAuth: true }
+  }
+]
+});
 
-setupAuthGuard(router)
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore();
+  
+  if (to.name === 'Login') return true;
 
-export default router
+  try {
+    const isValid = await authStore.checkTokenExpiration();
+    
+    if (to.meta.requiresAuth && !isValid) {
+      return { name: 'Login' };
+    }
+    
+    if (to.meta.guestOnly && isValid) {
+      return { name: 'Home' };
+    }
+    
+    return true;
+  } catch (error) {
+    authStore.clearAuthData();
+    return { name: 'Login' };
+  }
+});
+
+
+export default router;
