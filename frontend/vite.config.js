@@ -4,6 +4,15 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [vue()],
+  root: '.',
+  publicDir: 'public',
+  server: {
+    open: true
+  },
+  build: {
+    outDir: 'dist', 
+    emptyOutDir: true,
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

@@ -27,15 +27,18 @@ api.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 
-api.interceptors.response.use(response => response, async (error) => {
-  if (error.response?.status === 401) {
-    if (!authStore) {
-      authStore = useAuthStore();
+api.interceptors.response.use(
+  response => response, 
+  async (error) => {
+    if (error.response?.status === 401) {
+      if (!authStore) {
+        authStore = useAuthStore();
+      }
+      authStore.clearAuthData();
     }
-    authStore.clearAuthData();
+    return Promise.reject(error);
   }
-  return Promise.reject(error);
-});
+);
 
 export default {
   async getTargets() {
