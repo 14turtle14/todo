@@ -3,9 +3,17 @@ import { useRouter } from 'vue-router';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: localStorage.getItem('jwt') || null,
-    refreshToken: localStorage.getItem('refreshToken') || null,
-    user: JSON.parse(localStorage.getItem('user')) || null
+    user: (() => {
+      try {
+        const userData = localStorage.getItem('user');
+        return userData && userData !== 'undefined' 
+          ? JSON.parse(userData) 
+          : null;
+      } catch (e) {
+        console.error('Failed to parse user data:', e);
+        return null;
+      }
+    }),
   }),
 
   getters: {
@@ -21,7 +29,7 @@ export const useAuthStore = defineStore('auth', {
       
       localStorage.setItem('jwt', token);
       localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', user);
 
       return { token, user };
     },

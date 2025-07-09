@@ -5,7 +5,6 @@ from backend.routers import auth, targets, tasks, users
 from backend.database.database import startup
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
 
 logging.basicConfig(
     level=logging.INFO,

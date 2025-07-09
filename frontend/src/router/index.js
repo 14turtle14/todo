@@ -12,11 +12,11 @@ const router = createRouter({
     path: '/',
     redirect: (to) => {
       const authStore = useAuthStore;
-      return authStore.isAuthenticated ? '/home' : '/token';
+      return authStore.isAuthenticated ? '/home' : '/login';
   }
   },
   {
-    path: '/token',
+    path: '/login',
     name: 'Login',
     component: Login,
     meta: { guestOnly: true }
