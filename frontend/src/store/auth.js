@@ -22,13 +22,11 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    setAuthData({ token, refreshToken, user }) {
+    setAuthData({ token, user }) {
       this.token = token;
-      this.refreshToken = refreshToken;
       this.user = user;
       
       localStorage.setItem('jwt', token);
-      localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('user', user);
 
       return { token, user };
@@ -36,11 +34,9 @@ export const useAuthStore = defineStore('auth', {
 
     clearAuthData() {
       this.token = null;
-      this.refreshToken = null;
       this.user = null;
       
       localStorage.removeItem('jwt');
-      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
       
       const router = useRouter();
@@ -79,8 +75,7 @@ export const useAuthStore = defineStore('auth', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ refreshToken: this.refreshToken })
+          }
         });
 
         if (!response.ok) throw new Error('Refresh failed');
@@ -88,7 +83,6 @@ export const useAuthStore = defineStore('auth', {
         const data = await response.json();
         this.setAuthData({
           token: data.accessToken,
-          refreshToken: data.refreshToken,
           user: this.user
         });
         

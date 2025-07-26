@@ -1,12 +1,24 @@
 <template>
   <div class="login-container">
-    <form @submit.prevent="handleSubmit" class="login-form">
+    <div class="navigation-list">
+      <div class = "logo">
+        <img src="/dark_theme.png" 
+        alt="Логотип" 
+        class="form-logo">
+      </div>
+      <div class = "close-btn" @click="closeForm">
+        <i class="fas fa-times"></i>
+      </div>
+    </div>
+
+    <form @submit.prevent="login" class="login-form">
+      
       <div class="form-group">
         <input
-          type="email"
-          id="email"
-          v-model="email"
-          placeholder="email"
+          type="username"
+          id="username"
+          v-model="username"
+          placeholder="username"
           required
         />
       </div>
@@ -22,18 +34,17 @@
       </div>
       
       <button type="submit" class="login-button">log in</button>
-      
+    </form>
       <div class="signup-link">
         <h6>not a member?</h6>
         <router-link to="/signup">sign up now</router-link>
       </div>
-    </form>
   </div>
 </template>
 
 <script>
 import api from '@/api.js';
-
+import {useAuthStore} from '@/store/auth.js'
 export default {
   data() {
     return {
@@ -44,7 +55,14 @@ export default {
   methods: {
     async login() {
       try{
-        await api.login(this.username, this.password);
+        const authStore = useAuthStore();
+        const response = await api.login(this.username, this.password);
+
+        authStore.setAuthData({
+          token: response.accessToken,
+          user: response.user
+        });
+
         this.$router.push('/home');
       } catch (error) {
         console.error('Login failed:', error)
@@ -77,12 +95,8 @@ export default {
   margin-top: 3rem;
   margin-bottom: 2rem;
   border-radius: 50px;
-  border: 2px solid #40C9A286;
+  border: 2px solid #40C9A2;
   background-clip: padding-box;
-}
-
-.login-button:hover {
-  background-color: #161616;
 }
 
 .signup-link a {
@@ -126,10 +140,34 @@ input {
       color: #40C9A2;
       font-weight: bold;
     }
-  }
+}
 
 .login-form {
   margin: auto;
   padding-top: 3rem;
 }
+
+.navigation-list {
+  top: 15px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  color: white;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  border-radius: 50%;
+  gap: 300px;
+}
+
+.close-btn{
+  cursor: pointer;
+}
+.form-logo{
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: block;
+  margin: 0 auto 20px;
+}
+
 </style>

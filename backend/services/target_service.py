@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from backend.models.models import Target
-from backend.models.schemas.target_schema import TargetCreate, TargetUpdate
+from models.models import Target
+from models.schemas.target_schema import TargetCreate, TargetUpdate
 
 async def create_target(db: AsyncSession, target: TargetCreate, user_id: int):
     db_target = Target(**target.model_dump(), user_id=user_id)

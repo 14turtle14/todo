@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.models.models import Task
-from backend.models.schemas.task_schema import TaskCreate, TaskUpdate
+from models.models import Task
+from models.schemas.task_schema import TaskCreate, TaskUpdate
 from sqlalchemy.future import select
 
-from backend.services.target_service import find_target
+from services.target_service import find_target
 
 async def create_task(db: AsyncSession, task: TaskCreate, user_id: int):
     db_target = await find_target(db, task.target_id, user_id)

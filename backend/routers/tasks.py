@@ -1,11 +1,11 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, Depends
 
-from backend.database.database import get_db
+from database.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.models.schemas.task_schema import TaskCreate, TaskResponse, TaskUpdate
-from backend.services import task_service
-from backend.services.auth_service import get_current_user
+from models.schemas.task_schema import TaskCreate, TaskResponse, TaskUpdate
+from services import task_service
+from services.auth_service import get_current_user
 
 router = APIRouter(
     prefix="/targets/{target_id}/tasks",  

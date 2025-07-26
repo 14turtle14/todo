@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
 
-from backend.database.database import get_db
-from backend.services.auth_service import change_user_password, create_access_token, get_current_user, get_password_hash, verify_password
-from backend.services.user_service import create_user, get_user_by_email, get_user_by_login, get_user_by_username, update_user_email, update_user_username
-from backend.models.schemas.user_schema import Token, UserCreate, UserLogin, UserResponse
+from database.database import get_db
+from services.auth_service import change_user_password, check_refresh_token, create_access_token, create_refresh_token, delete_refresh_token, get_current_user, get_password_hash, verify_password, verify_token
+from services.user_service import create_user, get_user_by_email, get_user_by_login, get_user_by_username, update_user_email, update_user_username
+from models.schemas.user_schema import Token, UserCreate, UserResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -28,10 +28,11 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
     
     new_user = await create_user(db, user)
     
-    access_token = create_access_token(data={"sub": str(new_user.id)})
+    access_token = create_access_token(new_user.id)
+    await create_refresh_token(new_user.id, db)
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/token", response_model=Token)
+@router.post("/login", response_model=Token)
 async def login(user: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     db_user = await get_user_by_login(db, user.username)
     if not db_user:
@@ -39,12 +40,26 @@ async def login(user: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
     elif not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Incorrect username/email or password")
     
-    access_token = create_access_token(data={"sub": str(db_user.id)})
+    access_token = create_access_token(db_user.id)
+    await create_refresh_token(db_user.id, db)
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/logout")
 async def logout(user_id: int = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    pass # refresh
+    await delete_refresh_token(user_id=user_id, db=db)
+    response = Response()
+    response.delete_cookie(
+        key="refresh_token",
+        path="/refresh"  
+    )
+
+@router.post("/refresh")
+async def refresh(request: Request, user_id: int = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    refresh_token = request.session.get('refresh_token')
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh token missing")
+    if(check_refresh_token(refresh_token, user_id, db)):
+        return create_access_token(user_id)
 
 @router.post("/change/password", response_model=UserResponse)
 async def change_password(password_old: str, password_new: str, user_id: int = Depends(get_current_user), db: AsyncSession = Depends(get_db)):

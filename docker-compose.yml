@@ -1,13 +1,18 @@
 services:
   backend:
     build:
-      context: .
+      context: backend
       dockerfile: Dockerfile.backend
+    environment:
+      - ENV=development
+      - PYTHONUNBUFFERED=1
     ports:
       - "4014:4014"
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - backend
 
   db:
     image: postgres:13-alpine
@@ -19,22 +24,33 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks:
-      - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U todo_admin -d todo"]
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - backend
 
   frontend:
     build:
       context: frontend
-      dockerfile: ../Dockerfile.frontend
+      dockerfile: Dockerfile.frontend
     ports:
       - "5173:5173"
     environment:
-      VITE_API_URL: http://backend:4014/
+      VITE_API_URL: http://localhost:4014/
+      VITE_HOST: 0.0.0.0
+      NODE_ENV: development
+    networks:
+      - frontend
+      - backend
 
 volumes:
   postgres_data:
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge

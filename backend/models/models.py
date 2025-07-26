@@ -1,6 +1,7 @@
-from sqlalchemy import ForeignKey
+from sqlalchemy import DateTime, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.orm import DeclarativeBase
+from datetime import datetime 
 
 class Base(DeclarativeBase):
     pass
@@ -14,14 +15,13 @@ class User(Base):
     password: Mapped[str] = mapped_column()
 
     targets: Mapped[list["Target"]] = relationship(back_populates="user", cascade="all, delete-orphan", lazy="selectin")
+    tokens: Mapped[list["RefreshToken"]] = relationship(back_populates="user", cascade="all, delete-orphan", lazy="selectin")
 
 class Target(Base):
     __tablename__ = "targets"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column()
-    deadline: Mapped[int] = mapped_column()
-    is_done: Mapped[bool] = mapped_column()
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))  
 
     user: Mapped["User"] = relationship(back_populates="targets", lazy="selectin")
@@ -32,9 +32,18 @@ class Task(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column()
-    deadline: Mapped[int] = mapped_column()
+    deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     is_done: Mapped[bool] = mapped_column()
     target_id: Mapped[int] = mapped_column(ForeignKey("targets.id"))  
 
     target: Mapped["Target"] = relationship(back_populates="tasks", lazy="selectin")
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    token: Mapped[str] = mapped_column()
+    expires: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))  
+    user: Mapped["User"] = relationship(back_populates="tokens", lazy="selectin")
     

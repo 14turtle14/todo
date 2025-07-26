@@ -63,7 +63,9 @@ export default {
 
   async login(username, password) {
     try {
-      const response = await api.post('/auth/token', { username, password });
+      const response = await api.post('/auth/login', { username, password }, {headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }});
       return response.data;
     } catch (error) {
       console.error('Error logging in:', error);

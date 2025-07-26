@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
-from backend.models import models
+from models import models
 
 SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://todo_admin:todo_password@db:5432/todo"
 

@@ -1,8 +1,8 @@
 import uvicorn
 import logging
 
-from backend.routers import auth, targets, tasks, users
-from backend.database.database import startup
+from routers import auth, targets, tasks, users
+from database.database import startup
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -17,7 +17,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8080",
+        "http://localhost:5173",
         "http://frontend:8080", 
     ],
     allow_credentials=True,

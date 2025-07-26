@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from backend.models.models import User
-from backend.models.schemas.user_schema import UserCreate
+from models.models import User
+from models.schemas.user_schema import UserCreate
 import logging
 logger = logging.getLogger(__name__)
 

@@ -22,8 +22,8 @@ const router = createRouter({
     meta: { guestOnly: true }
   },
   {
-    path: '/register',
-    name: 'Register',
+    path: '/signup',
+    name: 'Signup',
     component: Register,
     meta: { guestOnly: true }
   },
@@ -31,13 +31,13 @@ const router = createRouter({
     path: '/home',
     name: 'Home',
     component: Home,
-    meta: { requiresAuth: true }
+    //meta: { requiresAuth: true }
   },
   {
     path: '/profile',
     name: 'Profile',
     component: Profile,
-    meta: { requiresAuth: true }
+    //meta: { requiresAuth: true }
   }
 ]
 });

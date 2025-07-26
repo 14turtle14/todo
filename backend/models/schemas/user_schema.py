@@ -1,7 +1,8 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, ValidationInfo, field_validator
-from typing import List, Union
+from typing import List
+from datetime import datetime
 
-from backend.models.schemas.target_schema import TargetResponse
+from models.schemas.target_schema import TargetResponse
 
 class UserBase(BaseModel):
     username: str
@@ -25,10 +26,6 @@ class UserBase(BaseModel):
         if "username" in info.data and value == info.data["username"]:
             raise ValueError("Password must not match username")
         return value
-
-class UserLogin(BaseModel):
-    login: Union[EmailStr, str]
-    password: str
 
 class UserCreate(UserBase):
     pass
@@ -81,4 +78,9 @@ class UserResponse(UserBase):
         
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = 'bearer'
+
+class RefreshTokenCreate(BaseModel):
+    token: str
+    expires: datetime
+    user_id: int
