@@ -24,7 +24,7 @@
       <button type="submit" class="login-button">log in</button>
       
       <div class="signup-link">
-        not a member? 
+        <h6>not a member?</h6>
         <router-link to="/signup">sign up now</router-link>
       </div>
     </form>
@@ -55,60 +55,81 @@ export default {
 </script>
 
 <style scoped>
+
 .login-container {
-  width: 400px;
-  height: 600px;
+  width: 350px;
+  height: 450px;
   margin: auto;
   padding: 2rem;
-  border-radius: 50px;
+  border-radius: 40px;
   background-color: #161616;
 }
 
-.form-group {
-  background-color: #FFFFFF;
-  width: 400px;
-  height: 50px;
-  border-radius: 20px;
-  border: 1px;
-  border-color: #000000;
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #555;
-}
-
 .login-button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #4CAF50;
+  width: auto;
+  padding: 8px 40px;
+  background-color: #161616;
   color: white;
-  border: none;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: 1cap;
   cursor: pointer;
-  margin-top: 1rem;
+  font-weight: bold;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 50px;
+  border: 2px solid #40C9A286;
+  background-clip: padding-box;
 }
 
 .login-button:hover {
-  background-color: #45a049;
+  background-color: #161616;
+}
+
+.signup-link a {
+  color: #40C9A2;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1cap;
 }
 
 .signup-link {
   text-align: center;
   margin-top: 1.5rem;
-  color: #666;
+  color: #FFFFFF;
 }
 
-.signup-link a {
-  color: #4CAF50;
-  text-decoration: none;
+.form-group{
+  margin: auto;
+  padding: 1.3rem;
+  border: none;
 }
 
-.signup-link a:hover {
-  text-decoration: underline;
+h6 {
+  margin-bottom: 0;
+}
+
+input {
+    width: auto;
+    background-color: #FFFFFF;
+    padding: 12px 80px;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s;
+    border: none;
+    text-align: left;
+    font-weight: bold;
+    padding-left: 10px;
+    outline: none;
+    color: #40C9A2;
+
+    &::placeholder {
+      color: #40C9A2;
+      font-weight: bold;
+    }
+  }
+
+.login-form {
+  margin: auto;
+  padding-top: 3rem;
 }
 </style>
