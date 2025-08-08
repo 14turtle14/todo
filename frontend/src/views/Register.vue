@@ -1,8 +1,6 @@
 <template>
   <div class="register-container">
-
     <div class="navigation-list">
-
       <div class = "back-btn" @click="goBack">
         <router-link to="/login">
           <i class="fas fa-arrow-left"></i>
@@ -14,10 +12,10 @@
     </div>
 
     <form @submit.prevent="register" class="signup-form">
-
       <div class="form-group">
         <input 
-          type="username"
+          type="text"
+          id="username"
           v-model="username" 
           placeholder="username" 
           required 
@@ -26,20 +24,29 @@
       
       <div class="form-group">
         <input 
-          type="email"
+          type="text"
+          id="email"
           v-model="email" 
           placeholder="email" 
           required 
         />
       </div>
 
-      <div class="form-group">
-        <input 
-          type="password"
-          v-model="password" 
-          placeholder="password" 
-          required 
+      <div class="form-group password-group">
+        <input
+          :type="showPassword ? 'text' : 'password'"
+          id="password"
+          v-model="password"
+          @input="handleInput"
+          placeholder="password"
+          required
         />
+        <i 
+          v-if="hasText"
+          @click="togglePasswordVisibility"
+          class="eye-icon"
+          :class="showPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"
+        ></i>
       </div>
 
       <button type="submit" class="register-button">sign up</button>
@@ -49,13 +56,16 @@
 
 <script>
 import api from '@/api.js';
-import {useAuthStore} from '@/store/auth.js'
+import { useAuthStore } from '@/store/auth.js'
+
 export default {
   data() {
     return {
       username: '',
       email: '',
-      password: ''
+      password: '',
+      showPassword: false,
+      hasText: false
     };
   },
   methods: {
@@ -73,45 +83,24 @@ export default {
       } catch (error) {
         console.error('Failed Registration:', error);
       }
+    },
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+    },
+    handleInput() {
+      this.hasText = this.password.length > 0;
+    },
+    closeForm() {
+      
+    },
+    goBack(){
+      this.$router.push('/login');
     }
   }
 };
 </script>
 
 <style scoped>
-
-.register {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.form-group{
-  margin: auto;
-  padding: 1.3rem;
-  border: none;
-}
-
-input {
-    width: auto;
-    background-color: #FFFFFF;
-    padding: 12px 80px;
-    border-radius: 10px;
-    font-size: 16px;
-    transition: all 0.3s;
-    border: none;
-    text-align: left;
-    font-weight: bold;
-    padding-left: 10px;
-    outline: none;
-    color: #40C9A2;
-
-    &::placeholder {
-      color: #40C9A2;
-      font-weight: bold;
-    }
-}
-
 .register-container {
   width: 350px;
   height: 450px;
@@ -119,6 +108,8 @@ input {
   padding: 2rem;
   border-radius: 40px;
   background-color: #161616;
+  position: relative;
+  transform: translateY(20%);
 }
 
 .register-button{
@@ -135,6 +126,38 @@ input {
   border-radius: 50px;
   border: 2px solid #40C9A2;
   background-clip: padding-box;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.form-group{
+  position: relative;
+  margin: auto;
+  padding: 1.3rem;
+  border: none;
+}
+
+input {
+    width: 95%;
+    background-color: #FFFFFF;
+    padding: 12px 80px;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s;
+    border: none;
+    text-align: left;
+    font-weight: bold;
+    padding-left: 10px;
+    padding-right: 40px;
+    outline: none;
+    color: #40C9A2;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: #40C9A2;
+      font-weight: bold;
+    }
 }
 
 .signup-form{
@@ -143,20 +166,31 @@ input {
 }
 
 .navigation-list {
-  top: 15px;
-  width: 20px;
-  height: 20px;
   display: flex;
-  cursor: pointer;
-  color: white;
-  transition: all 0.3s ease;
-  font-size: 16px;
-  border-radius: 50%;
-  gap: 326px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-.fas {
+.close-btn {
+  cursor: pointer;
   color: white;
+}
+
+.back-btn a{
+  cursor: pointer;
+  color: white;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: #40C9A2;
 }
 
 </style>
