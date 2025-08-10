@@ -106,25 +106,34 @@ export default {
   padding: 8px 40px;
   background-color: #161616;
   color: #FFFFFF;
-  border-radius: 4px;
   font-size: 1cap;
   cursor: pointer;
   font-weight: bold;
   margin-top: 3rem;
   margin-bottom: 2rem;
   border-radius: 50px;
-  border: 2px solid #40C9A2;
+  border: 2px solid #40C9A286;
+  transition: all 0.2s;
   background-clip: padding-box;
   display: block;
   margin-left: auto;
   margin-right: auto;
+
+  &:hover {
+    border-color: #40C9A2;
+  }
 }
 
 .signup-link a {
-  color: #40C9A2;
+  color: #40C9A286;
+  transition: all 0.2s;
   text-decoration: none;
   font-weight: bold;
   font-size: 1cap;
+
+  &:hover {
+    color: #40C9A2;
+  }
 }
 
 .signup-link {

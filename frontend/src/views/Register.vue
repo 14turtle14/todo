@@ -123,12 +123,18 @@ export default {
   font-weight: bold;
   margin-top: 3rem;
   margin-bottom: 2rem;
+  transition: all 0.2s;
   border-radius: 50px;
-  border: 2px solid #40C9A2;
+  border: 2px solid #40C9A286;
   background-clip: padding-box;
   display: block;
   margin-left: auto;
+  transition: all 0.2s;
   margin-right: auto;
+
+  &:hover {
+    border-color: #40C9A2;
+  }
 }
 
 .form-group{
