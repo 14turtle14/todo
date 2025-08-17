@@ -1,10 +1,19 @@
+from datetime import datetime
+from enum import Enum
 from pydantic import BaseModel, ConfigDict, field_validator
 from typing import List, Optional
 
 from models.schemas.task_schema import TaskResponse
 
+class TargetType(Enum):
+    PERIODIC = 'periodic'
+    DEFAULT = 'default'
+    EXPIRABLE = 'epirable'
+
 class TargetBase(BaseModel):
     title: str
+    type: TargetType
+    
 
     @field_validator("title")
     @classmethod
@@ -14,7 +23,9 @@ class TargetBase(BaseModel):
         return value.strip()
 
 class TargetCreate(TargetBase):
-    pass
+    deadline: Optional[datetime] = None
+    interval_days: Optional[int] = None
+    last_repeated_at: Optional[datetime] = None
 
 class TargetResponse(TargetBase):
     id: int

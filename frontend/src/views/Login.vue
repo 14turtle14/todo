@@ -48,10 +48,10 @@
 </template>
 
 <script>
-import api from '@/api.js';
-import { useAuthStore } from '@/store/auth.js'
+import { useAuthStore } from '@/store/auth'
 
 export default {
+  
   data() {
     return {
       username: '',
@@ -62,28 +62,14 @@ export default {
   },
   methods: {
     async login() {
-      try {
-        const authStore = useAuthStore();
-        const response = await api.login(this.username, this.password);
-
-        authStore.setAuthData({
-          token: response.accessToken,
-          user: response.user
-        });
-
-        this.$router.push('/home');
-      } catch (error) {
-        console.error('Login failed:', error);
-      }
+      const authStore = useAuthStore()
+      await authStore.login(this.username, this.password)
     },
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
     handleInput() {
       this.hasText = this.password.length > 0;
-    },
-    closeForm() {
-      
     }
   }
 };
@@ -112,7 +98,7 @@ export default {
   margin-top: 3rem;
   margin-bottom: 2rem;
   border-radius: 50px;
-  border: 2px solid #40C9A286;
+  border: 2px solid #40C9A2;
   transition: all 0.2s;
   background-clip: padding-box;
   display: block;
@@ -120,19 +106,19 @@ export default {
   margin-right: auto;
 
   &:hover {
-    border-color: #40C9A2;
+    border-color: #40C9A286;
   }
 }
 
 .signup-link a {
-  color: #40C9A286;
+  color: #40C9A2;
   transition: all 0.2s;
   text-decoration: none;
   font-weight: bold;
   font-size: 1cap;
 
   &:hover {
-    color: #40C9A2;
+    color: #40C9A286;
   }
 }
 
@@ -163,7 +149,7 @@ input {
   padding: 12px 20px;
   border-radius: 10px;
   font-size: 16px;
-  transition: all 0.3s;
+  transition: all 0.2s;
   border: none;
   text-align: left;
   font-weight: bold;
@@ -177,6 +163,10 @@ input {
 input::placeholder {
   color: #40C9A2;
   font-weight: bold;
+}
+
+input:focus::placeholder {
+  color: white;
 }
 
 .login-form {

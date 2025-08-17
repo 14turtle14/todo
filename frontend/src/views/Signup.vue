@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <form @submit.prevent="register" class="signup-form">
+    <form @submit.prevent="handleSubmit" class="signup-form">
       <div class="form-group">
         <input 
           type="text"
@@ -55,8 +55,7 @@
 </template>
 
 <script>
-import api from '@/api.js';
-import { useAuthStore } from '@/store/auth.js'
+import { useAuthStore } from '@/store/auth'
 
 export default {
   data() {
@@ -69,29 +68,19 @@ export default {
     };
   },
   methods: {
-    async register() {
-      try {
-        const authStore = useAuthStore();
-        const response = await api.register(this.username, this.email, this.password);
-        
-        authStore.setAuthData({
-          token: response.accessToken,
-          user: response.user
-        });
-        
-        this.$router.push('/home');
-      } catch (error) {
-        console.error('Failed Registration:', error);
-      }
+    async handleSubmit() {
+      const authStore = useAuthStore()
+      await authStore.signup(
+        this.username, 
+        this.email, 
+        this.password
+      )
     },
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
     handleInput() {
       this.hasText = this.password.length > 0;
-    },
-    closeForm() {
-      
     },
     goBack(){
       this.$router.push('/login');
@@ -125,7 +114,7 @@ export default {
   margin-bottom: 2rem;
   transition: all 0.2s;
   border-radius: 50px;
-  border: 2px solid #40C9A286;
+  border: 2px solid #40C9A2;
   background-clip: padding-box;
   display: block;
   margin-left: auto;
@@ -133,7 +122,7 @@ export default {
   margin-right: auto;
 
   &:hover {
-    border-color: #40C9A2;
+    border-color: #40C9A286;
   }
 }
 
@@ -180,6 +169,10 @@ input {
 
 .close-btn {
   cursor: pointer;
+  color: white;
+}
+
+input:focus::placeholder {
   color: white;
 }
 

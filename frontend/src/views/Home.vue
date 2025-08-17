@@ -7,11 +7,11 @@
       
       <div class="sidebar-content">
         <div class="menu-section">
-          <h3 class="section-title">statuses</h3>
+          <h3 class="section-title">Targets</h3>
           <div class="section-list">
-            <button class="menu-item" @click="">open</button>
-            <button class="menu-item" @click="">in progress</button>
-            <button class="menu-item" @click="">done</button>
+            <button class="menu-item" @click="">default</button>
+            <button class="menu-item" @click="">periodic</button>
+            <button class="menu-item" @click="">expirable</button>
           </div>
         </div>
         <TimeDisplay />
@@ -46,21 +46,27 @@
         <TargetList :targets="targets" />
       </div>
 
+      <div class="add-target">
+         <AddTarget />
+      </div>
+
     </div>
   </div>
 </template>
 
 <script>
 import TargetList from '@/components/TargetList.vue';
-import api from '@/api.js';
-import { useAuthStore } from '@/store/auth.js';
 import TimeDisplay from '@/components/TimeDisplay.vue';
-
+import AddTarget from '@/components/AddTarget.vue';
+import { useAuthStore } from '@/store/auth'
+import api from '@/api.js'
+import { toRaw } from 'vue'
 
 export default { 
   components: {
     TargetList,
-    TimeDisplay
+    TimeDisplay,
+    AddTarget
   },
   data() {
     return {
@@ -69,17 +75,19 @@ export default {
   },
   async created() {
     try {
-      this.targets = await api.getTargets();
+      const response = await api.getTargets();
+      const plain = toRaw(response.data)
+      this.targets = plain
+      console.log('Targets data:', this.targets); // Проверяем данные
     } catch (error) {
       console.error('Failed to fetch targets:', error);
     }
   },
   methods: {
     async handleLogout() {
+      const authStore = useAuthStore()
       try {
-        const authStore = useAuthStore();
-        await authStore.logout();
-        this.$router.push('/login');
+        await authStore.logout()
       } catch (error) {
         console.error('Logout failed:', error);
       }
@@ -107,7 +115,7 @@ export default {
 
 .logo-container {
   padding: 14px;
-  height: 6vh;
+  height: 5vh;
   border-bottom: 1px solid #1e1e1e;
   display: flex;
 }
@@ -173,7 +181,7 @@ export default {
 }
 
 .header {
-  height: 6vh;
+  height: 5vh;
   background-color: #161616;
   border-bottom: 1px solid #1e1e1e;
   display: flex;
@@ -197,6 +205,10 @@ export default {
   display: flex;
   align-items: center;
   gap: 100px;
+}
+
+.add-target{
+  background-color: #161616;
 }
 
 .control-icon {
@@ -233,13 +245,13 @@ export default {
   padding: 8px 30px;
   color: #FFFFFF;
   border-radius: 50px;
-  border: 2px solid #40C9A286;
+  border: 2px solid #40C9A2;
   background-clip: padding-box;
   display: block;
-  transition: all 0.2s;
+  margin-right: 20px;
 
   &:hover {
-    border-color: #40C9A2;
+    border-color: #40C9A286;
   }
 }
 

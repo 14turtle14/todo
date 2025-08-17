@@ -3,16 +3,11 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile.backend
-    environment:
-      - ENV=development
-      - PYTHONUNBUFFERED=1
     ports:
       - "4014:4014"
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - backend
 
   db:
     image: postgres:13-alpine
@@ -29,8 +24,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-    networks:
-      - backend
 
   frontend:
     build:
@@ -41,16 +34,6 @@ services:
     environment:
       VITE_API_URL: http://localhost:4014/
       VITE_HOST: 0.0.0.0
-      NODE_ENV: development
-    networks:
-      - frontend
-      - backend
 
 volumes:
   postgres_data:
-
-networks:
-  frontend:
-    driver: bridge
-  backend:
-    driver: bridge

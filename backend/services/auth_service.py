@@ -37,7 +37,7 @@ def create_access_token(user_id: int) -> str:
     payload = {"sub": str(user_id), "exp": expires, "type": "access"}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-async def create_refresh_token(user_id: int, db: AsyncSession = Depends(get_db)) -> str:
+async def create_refresh_token(user_id: int, db: AsyncSession = Depends(get_db)):
     await delete_refresh_token(user_id=user_id, db=db)
     expires = datetime.now(UTC) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     payload = {"sub": str(user_id), "exp": expires, "type": "refresh"}
@@ -57,7 +57,6 @@ async def create_refresh_token(user_id: int, db: AsyncSession = Depends(get_db))
         max_age=7*24*60*60,  
         path="/refresh"
     )
-    return db_token.token
 
 async def verify_token(token: str = Depends(oauth2_scheme)):
     if token in token_blacklist:

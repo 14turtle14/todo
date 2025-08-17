@@ -3,8 +3,8 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 class TaskBase(BaseModel):
     title: str
-    deadline: int
-    is_done: bool
+    is_done: bool = False
+    is_priorityzed: bool = False
     target_id: int
 
     @field_validator("title")
@@ -13,13 +13,6 @@ class TaskBase(BaseModel):
         if not value.strip():
             raise ValueError("Name must not be empty")
         return value.strip()
-
-    @field_validator("deadline")
-    @classmethod
-    def validate_deadline(cls, value: int) -> int:
-        if value <= 0:
-            raise ValueError("Deadline must be more than 0")
-        return value
 
 class TaskCreate(TaskBase):
     pass
@@ -39,5 +32,5 @@ class TaskResponse(TaskBase):
 
 class TaskUpdate(BaseModel):
     title: Optional[str]
-    deadline: Optional[int]
     is_done: Optional[bool]
+    is_priorityzed: Optional[bool]

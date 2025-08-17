@@ -1,85 +1,88 @@
 import axios from 'axios';
-import {useAuthStore} from '@/store/auth.js'
+import { useAuthStore } from '@/store/auth.js';
 
 const api = axios.create({
-  baseURL: 'http://localhost:4014', 
-  withCredentials: false,
+  baseURL: 'http://127.0.0.1:4014',
+  withCredentials: true, 
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json'
   }
 });
 
-let authStore;
-
 api.interceptors.request.use(async (config) => {
-   if (!authStore) {
-    authStore = useAuthStore(); 
-  }
+  const authStore = useAuthStore();
   
-  if (authStore.token) {
-    await authStore.checkTokenExpiration();
-    config.headers.Authorization = `Bearer ${authStore.token}`;
+  if (authStore.accessToken) {
+    const isTokenValid = await authStore.checkTokenExpiration();
+    
+    if (isTokenValid) {
+      config.headers.Authorization = `Bearer ${authStore.accessToken}`;
+    }
   }
   
   return config;
-}, (error) => {
-  return Promise.reject(error);
 });
 
 api.interceptors.response.use(
-  response => response, 
+  response => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      if (!authStore) {
-        authStore = useAuthStore();
+    const authStore = useAuthStore();
+    
+    if (error.response?.status === 401 && !error.config._retry) {
+      error.config._retry = true;
+      
+      try {
+        await authStore.refreshToken();
+        return api(error.config); 
+      } catch (refreshError) {
+        authStore.clearAuthData();
+        return Promise.reject(refreshError);
       }
-      authStore.clearAuthData();
     }
+    
     return Promise.reject(error);
   }
 );
 
 export default {
-  async getTargets() {
-    try {
-      const response = await api.get('/targets');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching targets:', error);
-      throw error;
-    }
-  },
-
-  async getUser(userId) {
-    try {
-      const response = await api.get('/user/{userId}');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetch user:', error);
-      throw error;
-    }
-  },
-
-  async login(username, password) {
-    try {
-      const response = await api.post('/auth/login', { username, password }, {headers: {
+  login(username, password) {
+    return api.post('/auth/login', {username, password}, {
+      headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
-      }});
-      return response.data;
-    } catch (error) {
-      console.error('Error logging in:', error);
-      throw error;
-    }
+      }
+    });
   },
 
-  async register(username, email, password) {
-    try {
-      const response = await api.post('/auth/signup', { username, email, password });
-      return response.data;
-    } catch (error) {
-      console.error('Error registering:', error);
-      throw error;
+  signup(username, email, password) {
+    return api.post('/auth/signup', {username, email, password});
+  },
+  
+  refreshToken() {
+    return api.post('/auth/refresh', {}, {
+      withCredentials: true 
+    });
+  },
+  
+  logout() {
+    return api.post('/auth/logout');
+  },
+  
+  fetchUser() {
+    return api.get('/users/me');
+  },
+  
+  getTargets() {
+    return api.get('/targets');
+  },
+
+  createTarget(title, type, deadline, interval_days){
+    if (type === 'default'){
+      return api.post('/targets/', {title, type})
+    } else if (type === 'periodic'){
+      return api.post('/targets/', {title, type, interval_days})
+    } else {
+      return api.post('/targets/', {title, type, deadline})
     }
   }
 };

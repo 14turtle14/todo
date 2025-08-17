@@ -1,62 +1,40 @@
 import { defineStore } from 'pinia';
-import { useRouter } from 'vue-router';
+import router from '@/router';
+import { jwtDecode } from 'jwt-decode';
+import api from '@/api';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: (() => {
-      try {
-        const userData = localStorage.getItem('user');
-        return userData && userData !== 'undefined' 
-          ? JSON.parse(userData) 
-          : null;
-      } catch (e) {
-        console.error('Failed to parse user data:', e);
-        return null;
-      }
-    }),
+    accessToken: localStorage.getItem('accessToken') || null,
+    user: null     
   }),
 
   getters: {
-    isAuthenticated: (state) => !!state.token,
-    currentUser: (state) => state.user
+    isAuthenticated: (state) => !!state.accessToken,
   },
 
   actions: {
-    setAuthData({ token, user }) {
-      this.token = token;
-      this.user = user;
-      
-      localStorage.setItem('jwt', token);
-      localStorage.setItem('user', user);
-
-      return { token, user };
+    setAccessToken(token) {
+      this.accessToken = token;
+      localStorage.setItem('accessToken', token);
     },
 
     clearAuthData() {
-      this.token = null;
+      this.accessToken = null;
       this.user = null;
-      
-      localStorage.removeItem('jwt');
-      localStorage.removeItem('user');
-      
-      const router = useRouter();
+      localStorage.removeItem('accessToken');
       router.push('/login');
     },
 
     async checkTokenExpiration() {
-      if (!this.token) return false;
+      if (!this.accessToken) return false;
 
       try {
-        const payload = JSON.parse(atob(this.token.split('.')[1]));
+        const payload = jwtDecode(this.accessToken);
         const isExpired = payload.exp < Date.now() / 1000;
-        
+
         if (isExpired) {
-          try {
-            await this.refreshToken();
-            return true;
-          } catch {
-            return false;
-          }
+          return await this.refreshToken();
         }
         return true;
       } catch (error) {
@@ -66,29 +44,58 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async refreshToken() {
-      if (!this.refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/refresh`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-
-        if (!response.ok) throw new Error('Refresh failed');
-
-        const data = await response.json();
-        this.setAuthData({
-          token: data.accessToken,
-          user: this.user
-        });
-        
-        return data.accessToken;
+        const response = await api.refreshToken();
+        this.setAccessToken(response.data.access_token);
+        await this.fetchUser();
+        return true;
       } catch (error) {
         this.clearAuthData();
+        throw error;
+      }
+    },
+
+    async fetchUser() {
+      try {
+        const response = await api.fetchUser();
+        this.user = response.data;
+      } catch (error) {
+        console.error('Failed to fetch user data', error);
+        throw error;
+      }
+    },
+
+    async login(login, password) {
+      try {
+        const response = await api.login(login, password);
+        this.setAccessToken(response.data.access_token);
+        await this.fetchUser();
+        router.push('/home');
+      } catch (error) {
+        console.error('Login failed', error);
+        throw error;
+      }
+    },
+
+    async signup(username, email, password) {
+      try {
+        const response = await api.signup(username, email, password);
+        this.setAccessToken(response.data.access_token);
+        await this.fetchUser();
+        router.push('/home');
+      } catch (error) {
+        console.error('Login failed', error);
+        throw error;
+      }
+    },
+    
+    async logout() {
+      try {
+        await api.logout();
+        this.clearAuthData();
+        router.push('/login');
+      } catch (error) {
+        console.error('Logout failed', error);
         throw error;
       }
     }
